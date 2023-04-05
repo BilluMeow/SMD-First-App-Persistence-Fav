@@ -1,4 +1,5 @@
 import 'package:english_words/english_words.dart';
+import 'package:first_app/sharedpref.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -34,14 +35,25 @@ class FirstAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  var favorites = <WordPair>[];
+  SharedPref pref = SharedPref();
+  List<String> favorites = <String>[];
+
+  FirstAppState() {
+    loadPrefs();
+  }
+
+  Future<void> loadPrefs() async {
+    favorites = await pref.read("Fav") ?? <String>[];
+  }
 
   void toggleFavorite() {
-    if (favorites.contains(current)) {
-      favorites.remove(current);
+    final currentString = current.toLowerCase().toString();
+    if (favorites.contains(currentString)) {
+      favorites.remove(currentString);
     } else {
-      favorites.add(current);
+      favorites.add(currentString);
     }
+    pref.save("Fav", favorites);
     notifyListeners();
   }
 }
@@ -113,7 +125,7 @@ class GeneratorPage extends StatelessWidget {
     var pair = appState.current;
 
     IconData icon;
-    if (appState.favorites.contains(pair)) {
+    if (appState.favorites.contains(pair.asLowerCase.toString())) {
       icon = Icons.favorite;
     } else {
       icon = Icons.favorite_border;
@@ -199,7 +211,7 @@ class FavoritesPage extends StatelessWidget {
         for (var pair in appState.favorites)
           ListTile(
             leading: const Icon(Icons.favorite),
-            title: Text(pair.asLowerCase),
+            title: Text(pair),
           ),
       ],
     );
