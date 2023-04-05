@@ -1,8 +1,4 @@
-import 'package:english_words/english_words.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
-
-import 'favorties.dart';
 
 class SharedPref {
   static late SharedPreferences _prefs;
@@ -17,21 +13,17 @@ class SharedPref {
 
   read(String key) async {
     _prefs = await SharedPreferences.getInstance();
-    var ans = _prefs.getString(key);
-    if (ans != null) {
-      return json.decode(ans);
-    } else {
-      return Favorites();
-    }
+    List<String>? ans = _prefs.getStringList(key);
+    return ans;
   }
 
-  save(String key, Favorites value) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString(key, json.encode(value.toJson()));
+  save(String key, List<String> value) async {
+    _prefs = await SharedPreferences.getInstance();
+    await _prefs.setStringList(key, value);
   }
 
   remove(String key) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove(key);
+    _prefs = await SharedPreferences.getInstance();
+    _prefs.remove(key);
   }
 }
